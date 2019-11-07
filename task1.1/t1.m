@@ -1,43 +1,43 @@
 a=csvread('sensor_data.csv');
-for j=1:size(a)
-    temp=strcat(num2str(a(j,1)),num2str(a(j,2)));
-    m(j,1)=str2num(temp);
-endfor
-for j=1:size(a)
-    temp=strcat(num2str(a(j,3)),num2str(a(j,4)));
-    m(j,2)=str2num(temp);
-endfor
-for j=1:size(a)
-    temp=strcat(num2str(a(j,5)),num2str(a(j,6)));
-    m(j,3)=str2num(temp);
-endfor
-for j=1:size(a)
-    temp=strcat(num2str(a(j,7)),num2str(a(j,8)));
-    m(j,4)=str2num(temp);
-endfor
-for j=1:size(a)
-    temp=strcat(num2str(a(j,9)),num2str(a(j,10)));
-    m(j,5)=str2num(temp);
-endfor
-for j=1:size(a)
-    temp=strcat(num2str(a(j,11)),num2str(a(j,12)));
-    m(j,6)=str2num(temp);
+#joining all data
+for i=1:2:size(a,2)
+  for j=1:size(a,1)
+    temp=strcat(num2str(a(j,i)),num2str(a(j,i+1)));
+    m(j,(i+1)/2)=str2num(temp);
+  endfor
 endfor
 
-#disp(m);
-for n=1:size(a)
-  y(n)=fft(a(n));
-endfor
-#disp(y(8000));
-#lpf=designfilt('lowpassfir','Stopbandfrequency',0.7957747); this doesnt work designfilt doesnt work in octave
-lpf=fir1(1,0.7957747,'low');
-disp(lpf); #filter coef are displayed
-dataout = filtfilt(lpf,1,a);# y can be used , it is fast fourier transform of data
+#for accelerometer
+lpf=fir1(2,0.7957747,'low');
+ax=m(1:8000,1);
+ay=m(1:8000,2);
+az=m(1:8000,2);
+dx= filtfilt(lpf,1,ax);
+dy= filtfilt(lpf,1,ay);
+dz= filtfilt(lpf,1,az);
+ax=dx;
+ay=dy;
+az=dz;
 
+#for gyroscope
 hpf=fir1(2,0.7957747,'high');
-disp(hpf); #filter coef are displayed
-dataout2 = filtfilt(hpf,1,a);# y can be used , it is fast fourier transform of data
+gx=m(1:8000,4);
+gy=m(1:8000,5);
+gz=m(1:8000,6);
+dx= filtfilt(lpf,1,gx);
+dy= filtfilt(lpf,1,gy);
+dz= filtfilt(lpf,1,gz);
+gx=dx;
+gy=dy;
+gz=dz;
 
-#disp(dataout);
-#plot(dataout);
-#plot(a);
+#disp(ax(1:10,1))
+
+pitch = atan2 (ay,(sqrt(gx.*gx+az.*az)));
+roll = atan2(-ax,(sqrt(gy.*gy+az.*az)));
+#disp(pitch(1:10,1));
+#disp(roll(1:10,1));
+
+B(1:8000,1)=pitch;
+B(1:8000,2)=roll;
+csvwrite('output_data.csv',B);    
