@@ -27,11 +27,11 @@ function read_accel(axl,axh,ayl,ayh,azl,azh)
   #################################################
   for j=1:8000
     temp=strcat(num2str(axh(j,1)),num2str(axl(j,1)));
-    ax(j,1)=str2num(temp);
+    ax(j,1)=(str2num(temp))/16384;
     temp=strcat(num2str(ayh(j,1)),num2str(ayl(j,1)));
-    ay(j,1)=str2num(temp);
+    ay(j,1)=(str2num(temp))/16384;
     temp=strcat(num2str(azh(j,1)),num2str(azl(j,1)));
-    az(j,1)=str2num(temp);
+    az(j,1)=(str2num(temp))/16384;
   endfor
 
   ####################################################
@@ -50,11 +50,11 @@ function read_gyro(gxl,gxh,gyl,gyh,gzl,gzh)
   
   for j=1:8000
     temp=strcat(num2str(gxh(j,1)),num2str(gxl(j,1)));
-    gx(j,1)=str2num(temp);
+    gx(j,1)=(str2num(temp))/131;
     temp=strcat(num2str(gyh(j,1)),num2str(gyl(j,1)));
-    gy(j,1)=str2num(temp);
+    gy(j,1)=(str2num(temp))/131;
     temp=strcat(num2str(gzh(j,1)),num2str(gzl(j,1)));
-    gz(j,1)=str2num(temp);
+    gz(j,1)=(str2num(temp))/131;
   endfor
 
   #####################################################
@@ -67,7 +67,16 @@ endfunction
 function lowpassfilter(ax,ay,az,f_cut)
   dT = 1/200;  #time in seconds
   Tau= 10;
-  alpha = Tau/(Tau+dT);                #do not change this line
+  alpha = Tau/(Tau+dT);  #do not change this line
+  fs=1000;
+  fn=fcut/(fs/2);
+  [b,a]=butter(6,fn,'low');
+  dx=filter(b,a,ax);
+  ax=dx;
+  dy=filter(b,a,ay);
+  ay=dy;
+  dz=filter(b,a,az);
+  az=dz;
   
   ################################################
   ##############Write your code here##############
@@ -82,6 +91,15 @@ function highpassfilter(gx,gy,gz,f_cut)
   dT = 1/200;  #time in seconds
   Tau= 10;
   alpha = Tau/(Tau+dT);                #do not change this line
+  fs=1000;
+  fn=fcut/(fs/2);
+  [b,a]=butter(6,fn,'high');
+  dx=filter(b,a,gx);
+  gx=dx;
+  dy=filter(b,a,gy);
+  gy=dy;
+  dz=filter(b,a,gz);
+  gz=dz;
   
   ################################################
   ##############Write your code here##############
@@ -108,6 +126,7 @@ function comp_filter_roll(ax,ay,az,gx,gy,gz)
 endfunction 
 
 function execute_code
+  A=csvread('sensor_data.csv');
   for n = 1:rows(A)                    #do not change this line
     
     ###############################################
@@ -116,6 +135,7 @@ function execute_code
     ###############################################
     
   endfor
+  B=[];
   csvwrite('output_data.csv',B);        #do not change this line
 endfunction
 
