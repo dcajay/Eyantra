@@ -15,8 +15,10 @@ function eqbm_points = find_equilibrium_points(x1_dot, x2_dot)
   x1_dot == 0;
   x2_dot == 0;
   ################## ADD YOUR CODE HERE ######################
+
   eqns=[x1_dot x2_dot];
   eqbm_points = solve(eqns);
+  
   ############################################################  
 endfunction
 
@@ -44,17 +46,13 @@ function jacobian_matrices = find_jacobian_matrices(eqbm_points, x1_dot, x2_dot)
     solutions{k} = soln;
   endfor
   ################## ADD YOUR CODE HERE ######################
+
   mat=jacobian([x1_dot ; x2_dot],[x1,x2]);
   for i=1:length(solutions)
-    #disp(solutions{i}(1));
     jb=subs(mat,{x1,x2},[solutions{i}(1),solutions{i}(2)]);
-    #disp(jb);
     jacobian_matrices{i}=double(jb);
   endfor
-  #jacobian_matrices=mat2cell(jacobian_matrices,[2 2]);
-  #disp(jacobian_matrices);
-  
-  
+
   ############################################################  
 endfunction
 
@@ -78,37 +76,25 @@ function [eigen_values stability] = check_eigen_values(eqbm_pts, jacobian_matric
     matrix = jacobian_matrices{k};
     flag = 1;
     ################## ADD YOUR CODE HERE ######################
+
     e=eig(matrix);
-    #disp(e)
     eigen_values{k}=e;
     num1=eigen_values{k}(1);
     num2=eigen_values{k}(2);
     argument=arg(num1);
-    #disp(argument);
     if argument==pi
-      #printf("the eigen values are real\n");
       val1=double(num1);
       val2=double(num2);
-      #disp(val1);
-      #disp(val2);
       if val1>=0 || val2>=0
         flag =0;
       endif
     else
-      #printf("the eigen values are complex\n");
       val=real(num1);
-      #disp(val);
       if val>0
         flag=0;
       endif
     endif
-      
-    #fprintf("the real part is: %d",double(real_e));
-    #if num>=0
-      #flag==0;
-    #endif
-  
-  
+
     ############################################################
     if flag == 1
       fprintf("The system is stable for equilibrium point (%d, %d) \n",double(eqbm_pts{k}.x1),double(eqbm_pts{k}.x2));
@@ -118,7 +104,6 @@ function [eigen_values stability] = check_eigen_values(eqbm_pts, jacobian_matric
       stability{k} = "Unstable";
     endif
   endfor
-  #disp(eigen_values);
 endfunction
 
 ## Function : main_function()
