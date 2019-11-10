@@ -106,8 +106,8 @@ endfunction
 ##          tf = 10 with initial condition y0
 function [t,y] = sim_pulley(m1, m2, g, r, y0)
   tspan = 0:0.1:10;                  ## Initialise time step           
-  u = 0;                             ## No Input
-  [t,y] = ode45(@(t,y)pulley_dynamics(y, m1, m2, g, r, u),tspan,y0);;  
+  u = 10;                             ## No Input
+  [t,y] = ode45(@(t,y)pulley_dynamics(y, m1, m2, g, r, u,tspan,y0));  
 endfunction
 
 ## Function : pulley_AB_matrix()
@@ -145,7 +145,7 @@ endfunction
 ##          calculated using Pole Placement Technique.
 function [t,y] = pole_place_pulley(m1, m2, g, r, y_setpoint, y0)
   [A,B]=pulley_AB_matrix(m1, m2, g, r);
-  eigs=[-1;-2];
+  eigs=[-1;9];
   K=place(A,B,eigs);
   tspan = 0:0.1:10;                  ## Initialise time step 
   [t,y] = ode45(@(t,y)pulley_dynamics(y, m1, m2, g, r, u, -K*(y-y_setpoint)),tspan,y0);  
@@ -170,10 +170,11 @@ endfunction
 ##          calculated using LQR
 function [t,y] = lqr_pulley(m1, m2, g, r, y_setpoint, y0)
   [A,B]=pulley_AB_matrix(m1, m2, g, r);
-  Q=[-1 0;0 2];
+  Q=[1 0;0 9];
   R=1;
-  [k,S,P]=lqr(A,B,Q,R);
+  [k,S,P]=lqr(A,B,Q,R,0);
   K=k;
+  disp(P)
   tspan = 0:0.1:10;                  ## Initialise time step 
   [t,y] =ode45(@(t,y)pulley_dynamics(y, m1, m2, g, r, u, -K*(y-y_setpoint)),tspan,y0); ;  
 endfunction
@@ -191,7 +192,7 @@ function simple_pulley_main()
   y0 = [0.5 ; 0];                   ## Initial condtion
   y_setpoint = [0.75; 0];              ## Set Point
   
-##  [t,y] = sim_pulley(m1, m2, g, r, y0);
+  [t,y] = sim_pulley(m1, m2, g, r, y0);
 ##  [t,y] = pole_place_pulley(m1, m2, g, r, y_setpoint, y0)
 ##  [t,y] = lqr_pulley(m1, m2, g, r, y_setpoint, y0)
   
