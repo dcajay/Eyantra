@@ -102,9 +102,9 @@ function dy = cart_pendulum_dynamics(y, m, M, L, g,  u)
   Cy = cos(y(3));
   D = m*L*L*(M+m*(1-Cy^2));
   dy(1,1) = y(2);
-  dy(2,1) = (1/D)*(-m^2*L^2*(-g)*Cy*Sy + m*L^2*(m*L*y(4)^2*Sy - y(2))) + m*L*L*(1/D)*u;
+  dy(2,1) = (1/D)*(-m^2*L^2*(-g)*Cy*Sy + m*L^2*(m*L*y(4)^2*Sy + y(2))) + m*L*L*(1/D)*u;
   dy(3,1) = y(4);
-  dy(4,1) = (1/D)*((m+M)*m*(-g)*L*Sy - m*L*Cy*(m*L*y(4)^2*Sy - y(2))) - m*L*Cy*(1/D)*u +.01*randn;
+  dy(4,1) = (1/D)*((m+M)*m*(-g)*L*Sy - m*L*Cy*(m*L*y(4)^2*Sy + y(2))) - m*L*Cy*(1/D)*u +.01*randn;
   
   
 endfunction
@@ -169,7 +169,7 @@ endfunction
 ##          calculated using Pole Placement Technique.
 function [t,y] = pole_place_cart_pendulum(m, M, L, g, y_setpoint, y0)
   [A, B] = cart_pendulum_AB_matrix(m , M, L, g)
-  p = [-2; -2.1; -2.2; -2.3];
+  p = [3; 3.1; -3.2; -3.3];
   K = place(A,B,p);
   tspan = 0:0.1:10;
   [t,y] = ode45(@(t,y)cart_pendulum_dynamics(y,m,M,L,g,-K*(y-y_setpoint)),tspan,y0);
@@ -218,8 +218,8 @@ function cart_pendulum_main()
   y_setpoint = [0; 0; pi; 0];
   
   #[t,y] = sim_cart_pendulum(m, M, L, g, y0);
- [t,y] = pole_place_cart_pendulum(m, M, L, g, y_setpoint, y0);
-#[t,y] = lqr_cart_pendulum(m, M, L, g, y_setpoint, y0);
+ #[t,y] = pole_place_cart_pendulum(m, M, L, g, y_setpoint, y0);
+[t,y] = lqr_cart_pendulum(m, M, L, g, y_setpoint, y0);
   
   for k = 1:length(t)
     draw_cart_pendulum(y(k, :), m, M, L);  
