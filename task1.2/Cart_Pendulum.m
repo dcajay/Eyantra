@@ -214,7 +214,7 @@ function cart_pendulum_main()
   M = 5;
   L = 2;
   g = 9.8;
-  y0 = [-4; 0; pi + 0.8; 0];
+  y0 = [-4; 0; pi - 0.8; 0];
   y_setpoint = [0; 0; pi; 0];
   
   #[t,y] = sim_cart_pendulum(m, M, L, g, y0);
